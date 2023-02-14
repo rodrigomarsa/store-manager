@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { productModel } = require('../../../src/models');
 const { productService } = require('../../../src/services');
-const { allProducts } = require('./mocks/product.service.mock');
+const { allProducts, createdProduct } = require('./mocks/product.service.mock');
 
 describe('Verificando service produtos', function () {
   describe('listagem de produtos', function () {
@@ -18,7 +18,7 @@ describe('Verificando service produtos', function () {
 
     it('a lista de produtos é um array', async function () {
       // ARRANGE
-      sinon.stub(productModel, 'findAll').resolves(allProducts);  
+      sinon.stub(productModel, 'findAll').resolves(allProducts);
       // ACT - chamar a função `findAll`
       const result = await productService.findAll();
       // ASSERT - verificar se resultado é um array
@@ -38,7 +38,7 @@ describe('Verificando service produtos', function () {
     
     it('retorna um erro caso receba um ID inexistente', async function () {
       // arrange
-      sinon.stub(productModel, 'findById').resolves(undefined);      
+      sinon.stub(productModel, 'findById').resolves(undefined);
       // act
       const result = await productService.findById(8);
       // assert
@@ -48,7 +48,7 @@ describe('Verificando service produtos', function () {
 
     it('retorna o produto caso ID existente', async function () {
       // arrange
-      sinon.stub(productModel, 'findById').resolves(allProducts[0]);      
+      sinon.stub(productModel, 'findById').resolves(allProducts[0]);
       // act
       const result = await productService.findById(1);
       // assert
@@ -57,6 +57,37 @@ describe('Verificando service produtos', function () {
     });
   });
   
+  describe('Cadastrando um novo produto', function () {
+    afterEach(function () {
+      sinon.restore();
+      });
+    it('retorna o produto cadastrado e não retorna erro', async function () {
+      sinon.stub(productModel, 'insert').resolves(10);
+      sinon.stub(productModel, 'findById').resolves(createdProduct);
+
+      const response = await productService.createProduct('Óculos do Stan Lee');
+      
+      expect(response.message).to.deep.equal({ id: 10, name: 'Óculos do Stan Lee' });
+      expect(response.type).to.equal(null);
+    });
+
+    it('retorna um erro caso receba um nome inválido', async function () {
+      // act
+      const result = await productService.createProduct('1');
+      // assert
+      expect(result.type).to.equal('INVALID_VALUE');
+    });
+
+    it('retorna um erro caso não receba um nome', async function () {
+      // arrange
+      sinon.stub(productModel, 'insert').resolves(undefined);
+      // act
+      const result = await productService.createProduct('1');
+      // assert
+      expect(result.type).to.equal('INVALID_VALUE');
+    });
+  });
+
   afterEach(function () {
     sinon.restore();
    });

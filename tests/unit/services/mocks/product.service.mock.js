@@ -5,6 +5,9 @@ const allProducts = [
   },
 ];
 
+const createdProduct = { id: 10, name: 'Óculos do Stan Lee' };
+
 module.exports = {
   allProducts,
+  createdProduct,
 };

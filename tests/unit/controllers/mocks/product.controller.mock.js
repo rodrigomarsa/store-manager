@@ -13,6 +13,9 @@ const productList = [
   },
 ];
 
+const createdProduct = { id: 10, name: 'Óculos do Stan Lee' };
+
 module.exports = {
   productList,
+  createdProduct,
 };

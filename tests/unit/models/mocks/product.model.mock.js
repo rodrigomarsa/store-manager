@@ -21,6 +21,11 @@ const products = [
   },
 ];
 
+const newProduct = {
+  name: 'Teias do Homem Aranha',
+};
+
 module.exports = {
   products,
+  newProduct,
 };
