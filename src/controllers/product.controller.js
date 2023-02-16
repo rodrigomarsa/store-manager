@@ -23,7 +23,7 @@ const createProduct = async (req, res) => {
   const { type, message } = await productService.createProduct(name);
   if (type) return res.status(mapError(type)).json({ message });
 
-  res.status(201).json(message);
+  return res.status(201).json(message);
 };
 
 module.exports = {

@@ -104,6 +104,27 @@ describe('Verificando controller produtos', function () {
       expect(res.status).to.have.been.calledOnceWith(201);
       expect(res.json).to.have.been.calledWith(createdProduct);
     });
+
+    it('é chamado o status com o código 422 e é chamado o json com a mensagem', async function () {
+      sinon
+        .stub(productService, 'createProduct')
+        .returns({ type: 'INVALID_VALUE', message: '"name" is required' });
+      
+      const res = {};
+      const req = {
+        body: {
+          name: 'aaa',
+        },
+      };
+
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+
+      await productController.createProduct(req, res);
+
+      expect(res.status).to.have.been.calledOnceWith(422);
+      expect(res.json).to.have.been.calledWith({ message: '"name" is required' });
+    });
   });
 
   describe('Verificando middleware validateProductNameField', function () {

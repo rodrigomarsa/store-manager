@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const sinon = require('sinon');
 const { productModel } = require('../../../src/models');
 const { productService } = require('../../../src/services');
+const validationsInputValues = require('../../../src/services/validations/validationsInputValues');
 const { allProducts, createdProduct } = require('./mocks/product.service.mock');
 
 describe('Verificando service produtos', function () {
@@ -68,21 +69,16 @@ describe('Verificando service produtos', function () {
       expect(response.type).to.equal(null);
     });
 
-    // it('retorna um erro caso receba um nome inválido', async function () {
-    //   // act
-    //   const result = await productService.createProduct('1');
-    //   // assert
-    //   expect(result.type).to.equal('INVALID_VALUE');
-    // });
-
-    // it('retorna um erro caso não receba um nome', async function () {
-    //   // arrange
-    //   sinon.stub(productModel, 'insert').resolves(undefined);
-    //   // act
-    //   const result = await productService.createProduct('1');
-    //   // assert
-    //   expect(result.type).to.equal('INVALID_VALUE');
-    // });
+    it('retorna um erro caso receba um nome inválido', async function () {
+      // arrange
+      sinon.stub(validationsInputValues, 'validateNewProduct')
+        .returns({ type: 'INVALID_VALUE', message: '"name" is required' });
+      // act
+      const result = await productService.createProduct(null);
+      // assert
+      expect(result.type).to.be.equals('INVALID_VALUE');
+      expect(result.message).to.be.equals('"name" is required');
+    });
   });
 
   afterEach(function () {
