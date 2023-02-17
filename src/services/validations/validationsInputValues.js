@@ -1,9 +1,12 @@
 const { productModel } = require('../../models');
 const { idSchema, addProductSchema } = require('./schema');
 
-const validateId = (id) => {
+const validateId = async (id) => {
   const { error } = idSchema.validate(id);
   if (error) return { type: 'INVALID_VALUE', message: '"id" must be a number' };
+
+  const product = await productModel.findById(id);
+  if (product === undefined) return { type: 'PRODUCT_NOT_FOUND', message: 'Product not found' };
   
   return { type: null, message: '' };
 };
@@ -15,7 +18,7 @@ const validateNewProduct = async (name) => {
   return { type: null, message: '' };
 };
 
-const validateProductId = async (itemsSold) => {
+const validateIds = async (itemsSold) => {
   const product = await Promise.all(
     itemsSold.map(({ productId }) => productModel.findById(productId)),
   );
@@ -29,5 +32,5 @@ const validateProductId = async (itemsSold) => {
 module.exports = {
   validateId,
   validateNewProduct,
-  validateProductId,
+  validateIds,
 };

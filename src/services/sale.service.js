@@ -15,7 +15,7 @@ const findById = async (saleId) => {
 };
 
 const createSale = async (itemsSold) => {
-  const error = await validationsInputValues.validateProductId(itemsSold);
+  const error = await validationsInputValues.validateIds(itemsSold);
   if (error.type) return error;
 
   const newSaleId = await saleModel.insert();
