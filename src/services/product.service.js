@@ -32,7 +32,7 @@ const editProduct = async ({ id, name }) => {
 
   await productModel.updateById(id, name);
   const editedProduct = await productModel.findById(id);
-
+  
   return { type: null, message: editedProduct };
 };
 

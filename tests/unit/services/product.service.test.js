@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const { productModel } = require('../../../src/models');
 const { productService } = require('../../../src/services');
 const validationsInputValues = require('../../../src/services/validations/validationsInputValues');
-const { allProducts, createdProduct } = require('./mocks/product.service.mock');
+const { allProducts, createdProduct, editedProduct } = require('./mocks/product.service.mock');
 
 describe('Verificando service produtos', function () {
   describe('listagem de produtos', function () {
@@ -78,6 +78,50 @@ describe('Verificando service produtos', function () {
       // assert
       expect(result.type).to.be.equals('INVALID_VALUE');
       expect(result.message).to.be.equals('"name" is required');
+    });
+  });
+
+  describe('Editando um produto', function () {
+    it('retorna o produto editado e não retorna erro', async function () {
+      sinon.stub(productModel, 'updateById').resolves(undefined);
+      sinon.stub(productModel, 'findById').resolves(editedProduct);
+      
+      const response = await productService.editProduct({ id: 1, name: 'Traje do Homem Formiga' });
+
+      expect(response.message).to.deep.equal(editedProduct);
+      expect(response.type).to.equal(null);
+    });
+
+     it('retorna um erro caso receba um ID inválido', async function () {
+      sinon.stub(validationsInputValues, 'validateId')
+        .returns({ type: 'INVALID_VALUE', message: '"id" must be a number' });
+
+      const result = await productService.editProduct({ id: 'a', name: 'Traje do Homem Formiga' });
+
+      expect(result.type).to.be.equals('INVALID_VALUE');
+      expect(result.message).to.be.equals('"id" must be a number');
+    });
+  });
+
+  describe('Excluindo um produto', function () {
+    it('exclui o produto e não retorna erro', async function () {
+      sinon.stub(productModel, 'findById').resolves(editedProduct);
+      sinon.stub(productModel, 'remove').resolves(undefined);
+
+      const response = await productService.deleteProduct(1);
+
+      expect(response.message).to.deep.equal('');
+      expect(response.type).to.equal(null);
+    });
+
+     it('retorna um erro caso receba um ID inválido', async function () {
+      sinon.stub(validationsInputValues, 'validateId')
+        .returns({ type: 'PRODUCT_NOT_FOUND', message: 'Product not found' });
+
+       const result = await productService.deleteProduct(999);
+
+      expect(result.type).to.be.equals('PRODUCT_NOT_FOUND');
+      expect(result.message).to.be.equals('Product not found');
     });
   });
 

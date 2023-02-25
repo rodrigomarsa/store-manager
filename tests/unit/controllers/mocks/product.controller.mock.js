@@ -15,7 +15,16 @@ const productList = [
 
 const createdProduct = { id: 10, name: 'Óculos do Stan Lee' };
 
+const editedProduct = { id: 1, name: 'Traje do Homem Formiga' };
+
+const invalidValueResponse = {
+  type: 'PRODUCT_NOT_FOUND',
+  message: 'Product not found',
+};
+
 module.exports = {
   productList,
   createdProduct,
+  editedProduct,
+  invalidValueResponse,
 };

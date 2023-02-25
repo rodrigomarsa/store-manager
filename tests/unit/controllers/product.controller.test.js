@@ -2,7 +2,7 @@ const sinon = require('sinon');
 const chai = require('chai');
 const sinonChai = require('sinon-chai');
 const { productService } = require('../../../src/services');
-const { productList, createdProduct } = require('./mocks/product.controller.mock');
+const { productList, createdProduct, editedProduct, invalidValueResponse } = require('./mocks/product.controller.mock');
 const { productController } = require('../../../src/controllers');
 const validateProductNameField = require('../../../src/middlewares/validateProductNameField');
 
@@ -46,7 +46,7 @@ describe('Verificando controller produtos', function () {
     });
   });
 
-  describe('Busca de um produto', function () {
+  describe('Buscando um produto', function () {
     it('é retornado o status com o código 200 e o produto', async function () {
       sinon
         .stub(productService, 'findById')
@@ -64,10 +64,6 @@ describe('Verificando controller produtos', function () {
     });
 
     it('é retornado o status com o código 404 e mensagem de erro', async function () {
-      const invalidValueResponse = {
-        type: 'PRODUCT_NOT_FOUND',
-        message: 'Product not found',
-      };
       sinon.stub(productService, 'findById').resolves(invalidValueResponse);
       const res = {};
       const req = { params: { id: 8 } };
@@ -83,7 +79,7 @@ describe('Verificando controller produtos', function () {
     });
   });
 
-  describe('Cadastra um novo produto', function () {
+  describe('Cadastrando um novo produto', function () {
     it('é chamado o status com o código 201 e é chamado o json com o produto cadastrado', async function () {
       sinon
         .stub(productService, 'createProduct')
@@ -177,7 +173,83 @@ describe('Verificando controller produtos', function () {
       expect(next).to.have.not.been.called;
     });
   });
-});
+  });
+
+  describe('Atualizando um produto', function () {
+    it('é chamado o status com o código 200 e é chamado o json com o produto cadastrado', async function () {
+      sinon
+        .stub(productService, 'editProduct')
+        .resolves({ type: null, message: editedProduct });
+
+      const res = {};
+      const req = {
+        params: { id: 1 },
+        body: { name: 'Traje do Homem Formiga'} };
+
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+
+      await productController.editProduct(req, res);
+
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.json).to.have.been.calledWith(editedProduct);
+    });
+
+    it('é retornado o status com o código 404 e mensagem de erro', async function () {
+      sinon
+        .stub(productService, 'editProduct')
+        .resolves(invalidValueResponse);
+
+      const res = {};
+      const req = {
+        params: { id: 999 },
+        body: { name: 'Martelo do Thor'} };
+
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+
+      await productController.editProduct(req, res);
+
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.json).to.have.been.calledWith({ message: invalidValueResponse.message });
+    });
+  });
+
+  describe('Removendo um produto', function () {
+    it('é chamado o status com o código 204', async function () {
+      sinon
+        .stub(productService, 'deleteProduct')
+        .resolves({ type: null, message: '' });
+      
+      const res = {};
+      const req = { params: { id: 1 } };
+
+      res.status = sinon.stub().returns(res);
+      res.end = sinon.stub().returns();
+
+      await productController.deleteProduct(req, res);
+
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.end).to.have.been.calledWith();
+    });
+
+    it('Faz a remoção de uma pessoa através do id', async function () {
+      sinon
+        .stub(productService, 'deleteProduct')
+        .resolves(invalidValueResponse);
+
+      const res = {};
+      const req = { params: { id: 999 } };
+
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+
+      await productController.deleteProduct(req, res);
+
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.json).to.have.been.calledWith({ message: invalidValueResponse.message });
+    });
+  });
 
   afterEach(function () {
     sinon.restore();
