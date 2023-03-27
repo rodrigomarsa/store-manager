@@ -8,10 +8,12 @@ const findAll = async () => {
 };
 
 const findById = async (saleId) => {
-  const sale = await saleModel.findById(saleId);
-  if (sale.length > 0) return { type: null, message: sale };
+  const error = await validationsInputValues.validateSaleId(saleId);
+  if (error.type) return error;
 
-  return { type: 'SALE_NOT_FOUND', message: 'Sale not found' };
+  const sale = await saleModel.findById(saleId);
+
+  return { type: null, message: sale };
 };
 
 const createSale = async (itemsSold) => {
@@ -29,8 +31,35 @@ const createSale = async (itemsSold) => {
   return { type: null, message: saleProductItems };
 };
 
+const editSale = async (saleId, itemsSold) => {
+  const errorSale = await validationsInputValues.validateSaleId(saleId);
+  if (errorSale.type) return errorSale;
+
+  const errorProducts = await validationsInputValues.validateIds(itemsSold);
+  if (errorProducts.type) return errorProducts;
+
+  const itemsUpdated = await Promise.all(itemsSold
+    .map(async ({ productId, quantity }) => saleProductModel
+      .update({ saleId, productId, quantity })));
+  
+  const updatedProductItems = { saleId, itemsUpdated };
+  
+  return { type: null, message: updatedProductItems };
+};
+
+const deleteSale = async (id) => {
+  const error = await validationsInputValues.validateSaleId(id);
+  if (error.type) return error;
+
+  await saleModel.remove(id);
+
+  return { type: null, message: '' };
+};
+
 module.exports = {
   findAll,
   findById,
   createSale,
+  editSale,
+  deleteSale,
 };

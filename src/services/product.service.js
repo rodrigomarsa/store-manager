@@ -16,6 +16,14 @@ const findById = async (productId) => {
   return { type: null, message: product };
 };
 
+const findByName = async (name) => {
+  const product = await productModel.findAll();
+
+  const filteredProducts = product.filter((element) => element.name.includes(name));
+
+  return { type: null, message: filteredProducts };
+};
+
 const createProduct = async (name) => {
   const error = validationsInputValues.validateNewProduct(name);
   if (error.type) return error;
@@ -48,6 +56,7 @@ const deleteProduct = async (id) => {
 module.exports = {
   findAll,
   findById,
+  findByName,
   createProduct,
   editProduct,
   deleteProduct,

@@ -18,6 +18,16 @@ const getProduct = async (req, res) => {
   return res.status(200).json(message);
 };
 
+const getProductByName = async (req, res) => {
+  const { q: name } = req.query;
+
+  const { type, message } = await productService.findByName(name);
+  
+  if (type) return res.status(mapError(type)).json({ message });
+
+  return res.status(200).json(message);
+};
+
 const createProduct = async (req, res) => {
   const { name } = req.body;
   const { type, message } = await productService.createProduct(name);
@@ -46,6 +56,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   listProducts,
   getProduct,
+  getProductByName,
   createProduct,
   editProduct,
   deleteProduct,

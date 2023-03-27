@@ -30,13 +30,23 @@ describe('Verificando o service de vendas', function () {
   describe('busca de uma venda', function () {
     it('retorna um erro caso receba um ID inexistente', async function () {
       // arrange
-      sinon.stub(saleModel, 'findById')
-        .returns({ type: 'SALE_NOT_FOUND', message: 'Sale not found' });;
+      sinon.stub(saleModel, 'findById').returns([]);;
       // act
-      const result = await saleService.findById(null);
+      const result = await saleService.findById(999);
       // assert
       expect(result.type).to.be.equals('SALE_NOT_FOUND');
       expect(result.message).to.be.equals('Sale not found');
+    });
+
+    it('retorna um erro caso receba um ID inválido', async function () {
+      // arrange
+      sinon.stub(saleModel, 'findById')
+        .returns({ type: 'INVALID_VALUE', message: '"id" must be a number' });;
+      // act
+      const result = await saleService.findById(null);
+      // assert
+      expect(result.type).to.be.equals('INVALID_VALUE');
+      expect(result.message).to.be.equals('"id" must be a number');
     });
 
     it('retorna a venda caso ID existente', async function () {
