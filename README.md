@@ -1,4 +1,4 @@
-# Projeto Talker Manager
+# Projeto Store Manager
 
 ## Contexto
 
